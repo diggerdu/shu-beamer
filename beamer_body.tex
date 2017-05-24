@@ -1,0 +1,105 @@
+\input{beamer_head}
+
+% 使用 \part,\section,\subsection 等命令组织文档结构
+% 使用 \frame 命令制作幻灯片
+
+\begin{document}
+
+\logo{\includegraphics[height=0.09\textwidth]{shu.png}}
+\title[BN]{Batch Normalization}
+\author[杜行健]{杜行健}
+\institute[翔英学院 2015级]{翔英学院 2015级}
+\date{\today}
+
+% 定义目录页
+\AtBeginPart{
+  \frame{
+    \frametitle{\partpage}
+    \begin{multicols}{2}
+% 如果目录过长，可以打开这个选项分两栏显示
+      \tableofcontents
+% 使用这个命令自动生成目录
+    \end{multicols}
+  }  
+}
+
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}[plain]
+        \frametitle{Overview}
+  \setcounter{tocdepth}{2}
+  \tableofcontents
+\end{frame}
+
+\section{Issues With Training Deep Neural Networks}
+\begin{frame}
+    \frametitle{Covariate Shift}
+        Given the same observation $X=x$, the conditional distributions of $Y$ are the same in the source and target domains. However, the marginal distributuions of X may be different in the source and the target domains. Formally, we assume that $P_s (Y|X=x) = P_t (Y|X = x) for all x \in \chi$, but $P_s (X) \neq P$. This difference between the two domains is called \textit{covariate shift}.\par
+\end{frame}
+\begin{frame}
+        \frametitle{Internal Covariate Shift}
+        In the case of deep networks, the input to each layer is affected by parameters in all the input layers. So even small changes to the network get amplified down the network. This leads to change in the input distribution to internal layers of the deep network and is known as internal covariate shift.\par
+        It is well established that networks converge faster if the inputs have been whitened (ie zero mean, unit variances) and are uncorrelated and internal covariate shift leads to just the opposite.\par
+\end{frame}
+
+\begin{frame}
+        \frametitle{Vanishing Gradient}
+        Saturating nonlinearities (like tanh or sigmoid) can not be used for deep networks as they tend to get stuck in the saturation region as the network grows deeper. Some ways around this are to use:
+        \begin{itemize}
+                \hilite <1> \item Nonlinearities like ReLU which do not saturate
+                \hilite <2> \item Smaller learning rates
+                \hilite <3> \item Careful initializations
+
+        \end{itemize}
+\end{frame}
+
+
+\section{Batch Normalization}
+\begin{frame}
+    \frametitle{Standard Score}
+        Let us say that the layer we want to normalize has $d$ dimensions $X = (x_1, \cdot, x_d)$. Then, we can normalize the $k^{th}$ dimension as follows:\par
+        \begin{equation}
+                \hat{x}^{k} = \frac{x^k - E[x^k]}{\sqrt{Var[x^k]}}
+        \end{equation}
+\end{frame}
+
+\begin{frame}
+        We also need to scale and shift the normalized values otherwise just normalizing a layer would limit the layer in terms of what it can represent. For example, if we normalize the inputs to a sigmoid function, then the output would be bound to the linear region only. \par
+        So the normalized input $x^k$ is transformed to:
+        \begin{equation}
+                y^k = \lambda^{k} \hat{x} + \beta^{k}
+        \end{equation}
+        where $\lambda$ and $\beta$ are parameters to be learned.\par
+\end{frame}
+
+\begin{frame}
+        Moreover, just like we use mini-batch in Stochastic Gradient Descent (SGD), we can use mini-batch with normalization to estimate the mean and variance for each activation.\par
+        The transformation from x to y as described above is called Batch Normalizing Tranform. This BN transform is differentiable and ensures that as the model is training, the layers can learn on the input distributions that exhibit less internal covariate shift and can hence accelerate the training.\par
+        At training time, a subset of activations in specified and BN transform is applied to all of them.\par
+        During test time, the normalization is done using the population statistics instead of mini-batch statistics to ensure that the output deterministically depends on the input.\par
+\end{frame}
+\section{Advantages Of Batch Normalization}
+\begin{frame}
+        \frametitle{Advantages Of Batch Normalization}
+		 \begin{itemize}
+                \hilite <1> \item Reduces internal covariant shift.
+                \hilite <2> \item Reduces the dependence of gradients on the scale of the parameters or their initial values.
+                \hilite <3> \item Regularizes the model and reduces the need for dropout, photometric distortions, local response normalization and other regularization techniques.
+				\hilite <4> \item Allows use of saturating nonlinearities and higher learning rates.
+
+        \end{itemize}
+
+\end{frame}
+\begin{frame}
+
+	\begin{center}
+	\Huge{\textbf{Thanks for your attention!}}
+
+	\Huge{\textit{Any questions?}}
+\end{center}
+\end{frame}
+
+\end{document}
